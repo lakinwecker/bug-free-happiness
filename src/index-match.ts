@@ -20,9 +20,7 @@ const hasError = <E>(error: E): HasError<E> => {
   return { __tag: "error", error };
 };
 
-const isNotStarted = <P, E, V>(o: Optimize<P, E, V>): o is NotStarted => {
-  return o.__tag === "notstarted";
-}
+const isNotStarted = <P, E, V>(o: Optimize<P, E, V>): o is NotStarted => { return o.__tag === "notstarted"; }
 const isInProgress = <P, E, V>(o: Optimize<P, E, V>): o is InProgress<P> => {
   return o.__tag === "inprogress";
 }
@@ -40,13 +38,12 @@ type CompleteMatch<P, E, V, R> = {
   errorF: (e: E) => R
 };
 
+type PartialCompleteMatch<P, E, V, R> = Partial<CompleteMatch<P, E, V, R>>;
+
+
 type PartialMatchWithDefault<P, E, V, R> = {
   defaultF: () => R,
-  notStartedF?: () => R,
-  inProgressF?: (p: P) => R,
-  completedF?: (v: V) => R,
-  errorF?: (e: E) => R
-};
+} & PartialCompleteMatch<P, E, V, R>;
 
 type Match<P, E, V, R> =
   | PartialMatchWithDefault<P, E, V, R>
@@ -57,7 +54,7 @@ const isComplete = <P, E, V, R>(m: Match<P, E, V, R>): m is CompleteMatch<P, E, 
   return Boolean(m.completedF) && Boolean(m.errorF) && Boolean(m.inProgressF) && Boolean(m.notStartedF);
 }
 
-const match2 = <P, E, V, R>(
+const match = <P, E, V, R>(
   matcher: Match<P, E, V, R>
 ) => (o: Optimize<P, E, V>): R => {
   if (isComplete(matcher)) {
@@ -74,27 +71,38 @@ const match2 = <P, E, V, R>(
   }
 }
 
-const fold = <P, E, V, R>(
-  notStartedF: () => R,
-  inProgressF: (p: P) => R,
-  completedF: (v: V) => R,
-  errorF: (e: E) => R
-) => (
-  o: Optimize<P, E, V>
-): R => {
-    if (isNotStarted(o)) return notStartedF();
-    else if (isInProgress(o)) return inProgressF(o.progress);
-    else if (isError(o)) return errorF(o.error)
-    else return completedF(o.value);
-  }
-
-
 
 // TODO: Let's make a slightly more realistic example
 
-const o: Optimize<number, number, number> = completed(1.0);
-match2({
-  notStartedF: () => { return false; },
-  inProgressF: (_: number) => { return false; },
-  defaultF: () => false,
+type OptimizeError = string;
+type Progress = number;
+type Route = string[];
+
+type OptimalRoute = Optimize<Progress, OptimizeError, Route>;
+
+// not started
+const form = () => { console.log("Show Starting Form"); }
+
+// error
+const errorView = (e: OptimizeError) => {
+  console.error(`Received Error: ${e}`);
+  form();
+}
+
+// in progress
+const inProgressView = (p: Progress) => {
+  console.log(`... Progress: ${p}`);
+}
+// completed
+const completeView = (r: Route) => {
+  r.map(console.log)
+}
+
+const o: OptimalRoute = hasError("We got some error");
+
+match({
+  notStartedF: form,
+  errorF: errorView,
+  inProgressF: inProgressView,
+  completedF: completeView
 })(o);
