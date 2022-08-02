@@ -21,6 +21,13 @@ export const fromList = <T>(listOfT: T[], index: number): List<T> | undefined =>
   };
 }
 
+const fromListAsList = <T>(listOfT: T[], index: number): List<T> => {
+  if (listOfT.length === 0) {
+    throw Error(".....");
+  }
+  return fromList(listOfT, index) as List<T>;
+}
+
 
 export const next = <T>(z: List<T>): List<T> => {
   const [nextT, ...rest] = z.next;
@@ -63,14 +70,14 @@ export const prepend = <T>({ prev, current, next }: List<T>, element: T): List<T
   };
 }
 
-export const map = <T, R>(z: List<T>, f: (t: T) => R): List<R> | undefined => {
-  return fromList(asList(z).map(f), z.prev.length);
+export const map = <T, R>(z: List<T>, f: (t: T) => R): List<R> => {
+  return fromListAsList(asList(z).map(f), z.prev.length);
 }
 
-export const insert = <T>(z: List<T>, element: T, index: number): List<T> | undefined => {
+export const insert = <T>(z: List<T>, element: T, index: number): List<T> => {
   const l = asList(z);
   l.splice(index, 0, element);
-  return fromList(l, z.prev.length);
+  return fromListAsList(l, z.prev.length);
 }
 
 
