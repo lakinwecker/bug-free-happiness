@@ -130,6 +130,7 @@ const userEquality: Z.HasEquals<User> = {
 test('Test find with objects', () => {
   const lakin: User = {first_name: "Lakin"};
   const l: Z.List<User> = {prev: [], current: lakin, next: []};
-  expect(Z.find(userEquality)({first_name: "Lakin"})(l)).toBe(0);
+  const find = Z.find(userEquality);
+  expect(find({first_name: "Lakin"})(l)).toBe(0);
 });
 

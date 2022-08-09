@@ -15,10 +15,12 @@
     "match": "ts-node src/index-match.ts",
     "renderparams": "ts-node src/index-renderparams.ts",
     "match-better": "ts-node src/index-match-better.ts",
-    "test": "jest"
+    "fpts": "ts-node src/fpts.ts",
+    "test": "jest --watchAll"
   },
   "dependencies": {
     "fp-ts": "^2.12.2",
-    "jest": "^28.1.3"
+    "jest": "^28.1.3",
+    "nodemon": "^2.0.19"
   }
 }
